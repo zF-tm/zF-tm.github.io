@@ -1,0 +1,44 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+import PostCard from '../../../components/PostCard.astro';
+import { withBase } from '../../../config';
+import { buildNoteTree, flattenNotes, folderChain, folderPath, notePath, type FolderRecord, type NoteRecord } from '../../../utils/note-tree';
+import { noteSlug } from '../../../utils/content';
+
+export async function getStaticPaths() {
+  const [entries, categoryEntries, folderEntries] = await Promise.all([getCollection('notes', ({ data }) => data.published), getCollection('noteCategories'), getCollection('noteFolders')]);
+  const paths: any[] = [];
+  for (const category of categoryEntries) {
+    const folders = folderEntries.filter(item => item.data.category === category.data.slug).map(item => item.data as FolderRecord);
+    const notes: NoteRecord<any>[] = entries.filter(item => item.data.category === category.data.slug).map(item => ({ category: item.data.category, folder: item.data.folder, slug: noteSlug(item), title: item.data.title, description: item.data.description, order: item.data.order, value: item }));
+    const tree = buildNoteTree(folders, notes);
+    for (const folder of folders) paths.push({ params: { category: category.data.slug, path: folderPath(folders, folder.slug) }, props: { kind: 'folder', category, folder, folders, notes, tree } });
+    for (const note of notes) paths.push({ params: { category: category.data.slug, path: notePath(folders, note).split('/').slice(1).join('/') }, props: { kind: 'note', category, note, folders, notes, tree } });
+  }
+  return paths;
+}
+const { kind, category, folder, note, folders, tree } = Astro.props;
+let NoteContent: any;
+if (kind === 'note') {
+  const sequence = flattenNotes(tree); const index = sequence.findIndex((item: any) => item.folder === note.folder && item.slug === note.slug);
+  Astro.props.previous = index > 0 ? sequence[index - 1] : null; Astro.props.next = index < sequence.length - 1 ? sequence[index + 1] : null;
+  Astro.props.chain = folderChain(folders, note.folder); NoteContent = (await render(note.value)).Content;
+}
+const directChildren = kind === 'folder' ? treeChildren(tree, folder.slug) : [];
+function treeChildren(nodes: any[], slug: string): any[] { for (const node of nodes) { if (node.type === 'folder' && node.slug === slug) return node.children; if (node.type === 'folder') { const found = treeChildren(node.children, slug); if (found.length) return found; } } return []; }
+---
+{kind === 'note' ? (
+  <ArticleLayout kind="notes" {...note.value.data} categoryName={category.data.name} categorySlug={category.data.slug} folders={folders} tree={tree} activeNote={note} folderChain={Astro.props.chain} previous={Astro.props.previous} next={Astro.props.next}>
+    <NoteContent />
+  </ArticleLayout>
+) : (
+  <BaseLayout title={`${folder.name} · ${category.data.name}`} description={folder.description ?? category.data.description}>
+    <section class="page-shell shell">
+      <nav class="breadcrumbs" aria-label="Breadcrumb"><a href={withBase('/')}>Home</a><span>/</span><a href={withBase('/notes/')}>Notes</a><span>/</span><a href={withBase(`/notes/${category.data.slug}/`)}>{category.data.name}</a>{folderChain(folders, folder.slug).map((part: any, index: number, chain: any[]) => <><span>/</span>{index === chain.length - 1 ? <span aria-current="page">{part.name}</span> : <a href={withBase(`/notes/${category.data.slug}/${folderPath(folders, part.slug)}/`)}>{part.name}</a>}</>)}</nav>
+      <header class="page-heading category-heading"><p class="eyebrow">Note folder</p><h1>{folder.name}</h1>{folder.description && <p class="lede">{folder.description}</p>}<p class="category-count">{directChildren.reduce((count: number,node: any)=>count+(node.type==='note'?1:node.descendantNotes),0)} descendant notes</p></header>
+      {directChildren.length ? <div class="folder-grid">{directChildren.map((node: any) => node.type === 'folder' ? <a class="folder-card" href={withBase(`/notes/${category.data.slug}/${folderPath(folders,node.slug)}/`)}><span>Folder</span><h2>{node.name}</h2><p>{node.description || `${node.descendantNotes} organized notes`}</p><strong>{node.descendantNotes} {node.descendantNotes===1?'note':'notes'} →</strong></a> : <PostCard kind="notes" slug={notePath(folders,node).split('/').slice(1).join('/')} category={category.data.name} categorySlug={category.data.slug} title={node.title} description={node.description} date={node.value.data.date} tags={node.value.data.tags} />)}</div> : <div class="empty-state"><span>∅</span><h2>No notes have been published in this folder yet.</h2></div>}
+    </section>
+  </BaseLayout>
+)}

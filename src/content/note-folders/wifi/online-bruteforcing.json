@@ -1,0 +1,7 @@
+{
+  "category": "wifi",
+  "name": "Online Bruteforcing",
+  "slug": "online-bruteforcing",
+  "parent": "wi-fi-protected-setup-wps-attacks",
+  "order": 30
+}

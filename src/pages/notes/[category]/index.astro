@@ -1,0 +1,24 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import PostCard from '../../../components/PostCard.astro';
+import { noteSlug } from '../../../utils/content';
+import { buildNoteTree, folderPath, notePath, type FolderRecord } from '../../../utils/note-tree';
+import { withBase } from '../../../config';
+export async function getStaticPaths() {
+  const categories = await getCollection('noteCategories');
+  return categories.map(category => ({ params: { category: category.data.slug }, props: { category } }));
+}
+const { category } = Astro.props;
+const [entries, folderEntries] = await Promise.all([getCollection('notes', ({ data }) => data.published && data.category === category.data.slug), getCollection('noteFolders', ({ data }) => data.category === category.data.slug)]);
+const folders = folderEntries.map(entry => entry.data as FolderRecord);
+const notes = entries.map(entry => ({ category: entry.data.category, folder: entry.data.folder, slug: noteSlug(entry), title: entry.data.title, description: entry.data.description, order: entry.data.order, value: entry }));
+const tree = buildNoteTree(folders, notes);
+---
+<BaseLayout title={category.data.name} description={category.data.description}>
+  <section class="page-shell shell">
+    <nav class="breadcrumbs" aria-label="Breadcrumb"><a href={withBase('/')}>Home</a><span aria-hidden="true">/</span><a href={withBase('/notes/')}>Notes</a><span aria-hidden="true">/</span><span aria-current="page">{category.data.name}</span></nav>
+    <header class="page-heading shell-narrow category-heading"><p class="eyebrow">Note category / {String(category.data.order).padStart(2, '0')}</p><h1>{category.data.name}</h1><p class="lede">{category.data.description}</p><p class="category-count">{notes.length} {notes.length === 1 ? 'published note' : 'published notes'}</p></header>
+    {tree.length === 0 ? <div class="empty-state"><span aria-hidden="true">∅</span><h2>No notes have been published in this category yet.</h2><p>This category is ready for its first note.</p></div> : <div class="folder-grid">{tree.map(node => node.type === 'folder' ? <a class="folder-card" href={withBase(`/notes/${category.data.slug}/${folderPath(folders,node.slug)}/`)}><span>Folder</span><h2>{node.name}</h2><p>{node.description || `Browse the notes organized inside ${node.name}.`}</p><strong>{node.descendantNotes} {node.descendantNotes===1?'note':'notes'} →</strong></a> : <PostCard kind="notes" slug={notePath(folders,node).split('/').slice(1).join('/')} category={category.data.name} categorySlug={category.data.slug} title={node.title} description={node.description} date={node.value.data.date} tags={node.value.data.tags} />)}</div>}
+  </section>
+</BaseLayout>

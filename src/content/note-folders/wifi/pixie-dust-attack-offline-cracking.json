@@ -1,0 +1,7 @@
+{
+  "category": "wifi",
+  "name": "Pixie Dust Attack (Offline Cracking)",
+  "slug": "pixie-dust-attack-offline-cracking",
+  "parent": "wi-fi-protected-setup-wps-attacks",
+  "order": 40
+}

@@ -1,0 +1,7 @@
+{
+  "category": "wifi",
+  "name": "Misc Attacks On WPS",
+  "slug": "misc-attacks-on-wps",
+  "parent": "wi-fi-protected-setup-wps-attacks",
+  "order": 50
+}

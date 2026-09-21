@@ -1,0 +1,32 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { siteConfig, withBase } from '../config';
+---
+<BaseLayout>
+  <section class="hero shell">
+    <div class="hero-copy">
+      <p class="eyebrow"><span class="status-dot"></span> Personal knowledge base</p>
+      <h1>Learn deeply.<br /><span>Document clearly.</span></h1>
+      <p class="lede">{siteConfig.siteDescription} Focused notes, reproducible research, and honest accounts of how systems break.</p>
+      <a class="text-link" href={withBase('/search/')}>Search the archive <span aria-hidden="true">→</span></a>
+    </div>
+    <div class="hero-signal" aria-hidden="true">
+      <span>01</span><div></div><span>KNOWLEDGE / SYSTEMS</span>
+    </div>
+  </section>
+  <section class="section shell" aria-labelledby="explore-title">
+    <div class="section-intro"><p class="eyebrow">Explore</p><h2 id="explore-title">Two paths through the work.</h2></div>
+    <div class="choice-grid">
+      <a class="choice-card" href={withBase('/notes/')}>
+        <div class="choice-number">01</div><div><p class="choice-label">Study log</p><h3>Notes</h3><p>Technical concepts, references, commands, and the things I’m learning.</p></div><span class="card-arrow" aria-hidden="true">↗</span>
+      </a>
+      <a class="choice-card accent" href={withBase('/writeups/')}>
+        <div class="choice-number">02</div><div><p class="choice-label">Field work</p><h3>Writeups</h3><p>CTFs, labs, security challenges, research, and walkthroughs.</p></div><span class="card-arrow" aria-hidden="true">↗</span>
+      </a>
+    </div>
+  </section>
+  <section class="manifesto shell-narrow">
+    <p class="eyebrow">Principle</p>
+    <blockquote>“A useful note should make the next encounter with a hard problem a little less mysterious.”</blockquote>
+  </section>
+</BaseLayout>

@@ -1,0 +1,22 @@
+---
+import type { TreeNode } from '../utils/note-tree';
+import { folderPath, notePath } from '../utils/note-tree';
+import { withBase } from '../config';
+interface Props { nodes: TreeNode<any>[]; folders: any[]; activePath?: string; level?: number; }
+const { nodes, folders, activePath, level = 0 } = Astro.props;
+const isActive = (node: TreeNode<any>) => node.type === 'note' && notePath(folders, node) === activePath;
+const containsActive = (node: TreeNode<any>): boolean => node.type === 'note' ? isActive(node) : node.children.some(containsActive);
+---
+<ul class="note-tree" data-level={level}>
+  {nodes.map(node => node.type === 'folder' ? (
+    <li class="note-tree-folder">
+      <details data-folder={`${node.category}/${node.slug}`} open={containsActive(node)}>
+        <summary><svg aria-hidden="true" viewBox="0 0 16 16"><path d="m6 3 5 5-5 5" /></svg><span>{node.name}</span><small>{node.descendantNotes}</small></summary>
+        <a class="folder-overview" href={withBase(`/notes/${node.category}/${folderPath(folders, node.slug)}/`)}>Folder overview</a>
+        <Astro.self nodes={node.children} folders={folders} activePath={activePath} level={level + 1} />
+      </details>
+    </li>
+  ) : (
+    <li><a class:list={["note-tree-link", { active: isActive(node) }]} aria-current={isActive(node) ? 'page' : undefined} href={withBase(`/notes/${notePath(folders, node)}/`)}>{node.title}</a></li>
+  ))}
+</ul>

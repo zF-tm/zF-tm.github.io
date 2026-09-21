@@ -1,0 +1,5 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { withBase } from '../config';
+---
+<BaseLayout title="Page not found"><section class="not-found shell-narrow"><p class="eyebrow">Error / 404</p><h1>Lost packet.</h1><p class="lede">This route does not exist, or the content moved.</p><a class="button" href={withBase('/')}>Return home</a></section></BaseLayout>

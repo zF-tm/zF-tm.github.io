@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.astro/
+.DS_Store
+*.log
+.env
+.env.*
+!.env.example
+# The writing/admin application is local-only and must never be committed.
+admin/
+ADMIN_AND_PUBLISHING.md
+NEXT_SESSION_CONTEXT.md
+.agents/
+.codex/

@@ -1,0 +1,67 @@
+---
+import { siteConfig, withBase } from '../config';
+import '../styles/global.css';
+
+interface Props { title?: string; description?: string; }
+const { title, description = siteConfig.siteDescription } = Astro.props;
+const pageTitle = title ? `${title} · ${siteConfig.siteName}` : siteConfig.siteName;
+const current = Astro.url.pathname;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#090d14" />
+    <title>{pageTitle}</title>
+    <script is:inline>
+      document.documentElement.dataset.theme = localStorage.getItem('theme') ||
+        (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <nav class="shell nav" aria-label="Primary navigation">
+        <a class="identity" href={withBase('/')} aria-label={`${siteConfig.siteName} home`}>
+          <span class="identity-mark" aria-hidden="true">S/</span>
+          <span>{siteConfig.siteName}</span>
+        </a>
+        <div class="nav-links">
+          {siteConfig.navigation.map((item) => {
+            const href = withBase(item.href);
+            const active = item.href === '/' ? current === href : current.startsWith(href);
+            return <a href={href} aria-current={active ? 'page' : undefined}>{item.label}</a>;
+          })}
+        </div>
+        <button class="icon-button" id="theme-toggle" type="button" aria-label="Switch color theme" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v2m0 14v2M3 12h2m14 0h2M5.64 5.64l1.42 1.42m9.88 9.88 1.42 1.42m0-12.72-1.42 1.42M7.06 16.94l-1.42 1.42M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z"/></svg>
+        </button>
+      </nav>
+    </header>
+    <main id="main"><slot /></main>
+    <footer class="site-footer">
+      <div class="shell footer-inner">
+        <p>© {new Date().getFullYear()} {siteConfig.author}. Built as a static knowledge base.</p>
+        <a href={siteConfig.github} rel="me">GitHub</a>
+      </div>
+    </footer>
+    <script>
+      const button = document.querySelector<HTMLButtonElement>('#theme-toggle');
+      const updateLabel = () => {
+        const isLight = document.documentElement.dataset.theme === 'light';
+        button?.setAttribute('aria-label', `Switch to ${isLight ? 'dark' : 'light'} theme`);
+        button?.setAttribute('aria-pressed', String(isLight));
+      };
+      updateLabel();
+      button?.addEventListener('click', () => {
+        const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+        document.documentElement.dataset.theme = next;
+        localStorage.setItem('theme', next);
+        updateLabel();
+      });
+    </script>
+  </body>
+</html>

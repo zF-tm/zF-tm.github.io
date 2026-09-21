@@ -1,0 +1,7 @@
+{
+  "category": "wifi",
+  "name": "Aircrack-ng essentials",
+  "slug": "aircrack-ng-essentials",
+  "parent": "introduction-to-wi-fi-pentesting",
+  "order": 20
+}
