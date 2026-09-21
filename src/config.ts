@@ -1,5 +1,5 @@
 export const siteConfig = {
-  siteName: 'Signal Notes',
+  siteName: "Nabil's Personal Website",
   siteDescription: 'A personal field guide to computer science and cybersecurity.',
   author: 'Your Name',
   github: 'https://github.com/username',
