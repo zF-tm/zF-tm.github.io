@@ -1,0 +1,7 @@
+{
+  "category": "wifi",
+  "name": "Basic Control Bypass",
+  "slug": "basic-control-bypass",
+  "parent": "introduction-to-wi-fi-pentesting",
+  "order": 40
+}

@@ -1,0 +1,34 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import { withBase } from '../config';
+const indexUrl = withBase('/search-index.json');
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+<BaseLayout title="Search" description="Search across all published notes and writeups.">
+  <section class="page-shell shell">
+    <SectionHeading eyebrow="Index / 03" title="Search the archive" description="Search titles, descriptions, tags, categories, and article content." />
+    <form class="global-search" role="search" data-search-form data-index={indexUrl} data-base={base}>
+      <label for="search-query">Search query</label>
+      <div><input id="search-query" type="search" autocomplete="off" placeholder="Try “networking”, “web”, or “Linux”…" /><button type="submit">Search</button></div>
+    </form>
+    <p class="filter-status" data-search-status aria-live="polite">Enter a term to search the published archive.</p>
+    <div class="search-results" data-search-results></div>
+  </section>
+  <script>
+    const form = document.querySelector<HTMLFormElement>('[data-search-form]');
+    const input = form?.querySelector<HTMLInputElement>('input');
+    const output = document.querySelector<HTMLElement>('[data-search-results]');
+    const status = document.querySelector<HTMLElement>('[data-search-status]');
+    let entries: Array<{type:string;slug:string;url:string;title:string;description:string;tags:string[];category:string;body:string}> = [];
+    const escape = (value: string) => value.replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]!));
+    fetch(form!.dataset.index!).then(r => r.json()).then(data => entries = data).catch(() => { if (status) status.textContent = 'The search index could not be loaded. Refresh and try again.'; });
+    form?.addEventListener('submit', event => {
+      event.preventDefault(); const query = input?.value.trim().toLowerCase() ?? '';
+      if (!query) { if (status) status.textContent = 'Enter a term to search the published archive.'; if (output) output.innerHTML = ''; return; }
+      const matches = entries.filter(e => `${e.title} ${e.description} ${e.tags.join(' ')} ${e.category} ${e.body}`.toLowerCase().includes(query));
+      if (status) status.textContent = `${matches.length} ${matches.length === 1 ? 'result' : 'results'} for “${query}”.`;
+      if (output) output.innerHTML = matches.map(e => `<article class="search-result"><p>${escape(e.type === 'notes' ? `Note / ${e.category}` : `Writeup${e.category ? ` / ${e.category}` : ''}`)}</p><h2><a href="${form!.dataset.base}${e.url.split('/').map(segment => encodeURIComponent(segment)).join('/')}">${escape(e.title)}</a></h2><p>${escape(e.description)}</p><div class="tag-list">${e.tags.map(t => `<span class="tag">${escape(t)}</span>`).join('')}</div></article>`).join('') || '<div class="empty-state compact"><h2>No matching articles.</h2><p>Try a broader term or a tag name.</p></div>';
+    });
+  </script>
+</BaseLayout>

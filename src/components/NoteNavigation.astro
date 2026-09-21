@@ -1,0 +1,30 @@
+---
+import NoteTree from './NoteTree.astro';
+interface Props { category: { name: string; slug: string }; tree: any[]; folders: any[]; activePath: string; }
+const { category, tree, folders, activePath } = Astro.props;
+---
+<button class="note-nav-trigger" type="button" data-note-nav-open aria-haspopup="dialog">Browse {category.name} Notes</button>
+<aside class="note-sidebar" aria-label={`${category.name} note navigation`} data-note-navigation>
+  <p class="eyebrow">Note navigation</p><h2>{category.name}</h2>
+  <div class="note-tree-scroll"><NoteTree nodes={tree} folders={folders} activePath={activePath} /></div>
+</aside>
+<dialog class="note-nav-dialog" data-note-nav-dialog aria-label={`${category.name} note navigation`}>
+  <div class="note-nav-dialog-head"><div><p class="eyebrow">Browse notes</p><h2>{category.name}</h2></div><button type="button" data-note-nav-close aria-label="Close note navigation">×</button></div>
+  <div class="note-tree-scroll" data-note-navigation><NoteTree nodes={tree} folders={folders} activePath={activePath} /></div>
+</dialog>
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('[data-note-nav-dialog]');
+  document.querySelector('[data-note-nav-open]')?.addEventListener('click', () => dialog?.showModal());
+  document.querySelector('[data-note-nav-close]')?.addEventListener('click', () => dialog?.close());
+  dialog?.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
+  document.querySelectorAll<HTMLElement>('[data-note-navigation]').forEach((navigation, index) => {
+    navigation.querySelectorAll<HTMLDetailsElement>('details[data-folder]').forEach(details => {
+      const key = `signal-notes:folder:${details.dataset.folder}`;
+      const active = Boolean(details.querySelector('[aria-current="page"]'));
+      if (!active) details.open = localStorage.getItem(key) === 'open';
+      details.addEventListener('toggle', () => localStorage.setItem(key, details.open ? 'open' : 'closed'));
+    });
+    const active = navigation.querySelector<HTMLElement>('[aria-current="page"]');
+    if (active && index === 0) requestAnimationFrame(() => active.scrollIntoView({ block: 'nearest' }));
+  });
+</script>

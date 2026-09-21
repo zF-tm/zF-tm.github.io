@@ -1,0 +1,21 @@
+---
+import { formatDate } from '../utils/content';
+import { withBase } from '../config';
+interface Props {
+  kind: 'notes' | 'writeups'; slug: string; title: string; description: string; date: Date;
+  tags?: string[]; category?: string; categorySlug?: string; platform?: string; difficulty?: string;
+}
+const { kind, slug, title, description, date, tags = [], category, categorySlug, platform, difficulty } = Astro.props;
+const href = kind === 'notes' ? `/notes/${categorySlug}/${slug}/` : `/writeups/${slug}/`;
+---
+<article class="post-card" data-search={`${title} ${description} ${category ?? ''} ${platform ?? ''} ${difficulty ?? ''} ${tags.join(' ')}`.toLowerCase()} data-category={(category ?? '').toLowerCase()} data-platform={(platform ?? '').toLowerCase()} data-difficulty={(difficulty ?? '').toLowerCase()}>
+  <div class="post-meta">
+    <time datetime={date.toISOString()}>{formatDate(date)}</time>
+    {category && <span>{category}</span>}
+    {platform && <span>{platform}</span>}
+    {difficulty && <span>{difficulty}</span>}
+  </div>
+  <h2><a href={withBase(href)}>{title}</a></h2>
+  <p>{description}</p>
+  {tags.length > 0 && <div class="tag-list" aria-label="Tags">{tags.map((tag) => <button class="tag" type="button" data-tag={tag.toLowerCase()}>{tag}</button>)}</div>}
+</article>

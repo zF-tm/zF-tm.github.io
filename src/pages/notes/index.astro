@@ -1,0 +1,23 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionHeading from '../../components/SectionHeading.astro';
+import { withBase } from '../../config';
+const [categories, notes] = await Promise.all([getCollection('noteCategories'), getCollection('notes', ({ data }) => data.published)]);
+const ordered = categories.sort((a, b) => a.data.order - b.data.order || a.data.name.localeCompare(b.data.name));
+const countFor = (slug: string) => notes.filter(note => note.data.category === slug).length;
+---
+<BaseLayout title="Notes" description="Technical notes organized by subject area.">
+  <section class="page-shell shell">
+    <SectionHeading eyebrow="Study log / 01" title="Note categories" description="Browse technical notes by subject, from foundational concepts to focused field references." />
+    {ordered.length === 0 ? <div class="empty-state"><span aria-hidden="true">∅</span><h2>No note categories have been published yet.</h2><p>The category index is ready for the first subject area.</p></div> :
+      <div class="category-grid">{ordered.map(category => {
+        const count = countFor(category.data.slug);
+        return <a class="category-card" href={withBase(`/notes/${category.data.slug}/`)}>
+          <div class="category-icon" aria-hidden="true">{category.data.icon || String(category.data.order).padStart(2, '0')}</div>
+          <div><p class="choice-label">Note category</p><h2>{category.data.name}</h2><p>{category.data.description}</p></div>
+          <strong>{count} {count === 1 ? 'Note' : 'Notes'} <span aria-hidden="true">→</span></strong>
+        </a>;
+      })}</div>}
+  </section>
+</BaseLayout>

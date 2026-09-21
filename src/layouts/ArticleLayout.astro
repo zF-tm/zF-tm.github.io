@@ -1,0 +1,46 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import { formatDate } from '../utils/content';
+import { withBase } from '../config';
+import NoteNavigation from '../components/NoteNavigation.astro';
+import { folderPath, notePath } from '../utils/note-tree';
+interface Props { kind: 'notes' | 'writeups'; title: string; description: string; date: Date; tags: string[]; category?: string; categoryName?: string; categorySlug?: string; platform?: string; difficulty?: string; folders?: any[]; tree?: any[]; activeNote?: any; folderChain?: any[]; previous?: any; next?: any; }
+const { kind, title, description, date, tags, category, categoryName, categorySlug, platform, difficulty, folders = [], tree = [], activeNote, folderChain = [], previous, next } = Astro.props;
+const backHref = kind === 'notes' && categorySlug ? `/notes/${categorySlug}/` : `/${kind}/`;
+const backLabel = kind === 'notes' && categoryName ? `${categoryName} Notes` : kind;
+---
+<BaseLayout title={title} description={description}>
+  <div class:list={[kind === 'notes' ? 'note-doc-layout shell' : '']}>
+  {kind === 'notes' && activeNote && categorySlug && categoryName && <NoteNavigation category={{name:categoryName,slug:categorySlug}} tree={tree} folders={folders} activePath={notePath(folders, activeNote)} />}
+  <article class:list={["article", kind === 'notes' ? 'note-article' : 'shell-narrow']}>
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <a href={withBase('/')}>Home</a><span aria-hidden="true">/</span><a href={withBase(`/${kind}/`)}>{kind === 'notes' ? 'Notes' : 'Writeups'}</a>
+      {kind === 'notes' && categorySlug && categoryName && <><span aria-hidden="true">/</span><a href={withBase(`/notes/${categorySlug}/`)}>{categoryName}</a></>}
+      {kind === 'notes' && categorySlug && folderChain.map((folder:any) => <><span aria-hidden="true">/</span><a href={withBase(`/notes/${categorySlug}/${folderPath(folders,folder.slug)}/`)}>{folder.name}</a></>)}
+      <span aria-hidden="true">/</span><span aria-current="page">{title}</span>
+    </nav>
+    <header class="article-header">
+      <div class="post-meta"><time datetime={date.toISOString()}>{formatDate(date)}</time>{(categoryName ?? category) && <span>{categoryName ?? category}</span>}{platform && <span>{platform}</span>}{difficulty && <span>{difficulty}</span>}</div>
+      <h1>{title}</h1><p class="lede">{description}</p>
+      {tags.length > 0 && <div class="tag-list">{tags.map(tag => <a class="tag" href={`${withBase(backHref)}?tag=${encodeURIComponent(tag)}`}>{tag}</a>)}</div>}
+    </header>
+    <div class="prose"><slot /></div>
+    <footer class="article-footer">
+      {kind === 'notes' && (previous || next) && <nav class="sequence-nav" aria-label="Previous and next notes">{previous ? <a href={withBase(`/notes/${notePath(folders,previous)}/`)}><span>← Previous</span><strong>{previous.title}</strong></a> : <span></span>}{next ? <a class="next" href={withBase(`/notes/${notePath(folders,next)}/`)}><span>Next →</span><strong>{next.title}</strong></a> : <span></span>}</nav>}
+      <a class="back-link" href={withBase(backHref)}>← Back to {backLabel}</a>
+    </footer>
+  </article>
+  </div>
+  <script>
+    document.querySelectorAll<HTMLElement>('.prose pre').forEach(pre => {
+      const button = document.createElement('button');
+      button.type = 'button'; button.className = 'copy-code'; button.textContent = 'Copy';
+      button.setAttribute('aria-label', 'Copy code block');
+      button.addEventListener('click', async () => {
+        await navigator.clipboard.writeText(pre.querySelector('code')?.textContent ?? '');
+        button.textContent = 'Copied'; setTimeout(() => button.textContent = 'Copy', 1600);
+      });
+      pre.append(button);
+    });
+  </script>
+</BaseLayout>

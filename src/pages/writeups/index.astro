@@ -1,0 +1,19 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionHeading from '../../components/SectionHeading.astro';
+import PostCard from '../../components/PostCard.astro';
+import ListingControls from '../../components/ListingControls.astro';
+import { byNewest, entrySlug } from '../../utils/content';
+const posts = (await getCollection('writeups', ({ data }) => data.published)).sort(byNewest);
+const values = (key: 'category' | 'platform' | 'difficulty') => [...new Set(posts.map(p => p.data[key]).filter((v): v is string => Boolean(v)))].sort();
+---
+<BaseLayout title="Writeups" description="CTFs, labs, cybersecurity challenges, research, and walkthroughs.">
+  <section class="page-shell shell">
+    <SectionHeading eyebrow="Field work / 02" title="Writeups" description="CTFs, labs, cybersecurity challenges, research, and walkthroughs." />
+    {posts.length === 0 ? <div class="empty-state"><span aria-hidden="true">∅</span><h2>No writeups published yet.</h2><p>Completed investigations will appear here with their methods and evidence.</p></div> : <>
+      <ListingControls kind="writeups" categories={values('category')} platforms={values('platform')} difficulties={values('difficulty')} />
+      <div class="post-grid">{posts.map(post => <PostCard kind="writeups" slug={entrySlug(post)} {...post.data} />)}</div>
+    </>}
+  </section>
+</BaseLayout>

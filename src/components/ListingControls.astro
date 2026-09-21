@@ -1,0 +1,43 @@
+---
+interface Props { kind: 'notes' | 'writeups'; categories: string[]; platforms?: string[]; difficulties?: string[]; }
+const { kind, categories, platforms = [], difficulties = [] } = Astro.props;
+---
+<div class="listing-controls" data-listing-controls>
+  <label class="search-field">
+    <span>Filter {kind}</span>
+    <input type="search" placeholder="Search this collection…" data-filter-query />
+  </label>
+  {categories.length > 0 && <label><span>Category</span><select data-filter-category><option value="">All categories</option>{categories.map(v => <option value={v.toLowerCase()}>{v}</option>)}</select></label>}
+  {platforms.length > 0 && <label><span>Platform</span><select data-filter-platform><option value="">All platforms</option>{platforms.map(v => <option value={v.toLowerCase()}>{v}</option>)}</select></label>}
+  {difficulties.length > 0 && <label><span>Difficulty</span><select data-filter-difficulty><option value="">All difficulties</option>{difficulties.map(v => <option value={v.toLowerCase()}>{v}</option>)}</select></label>}
+</div>
+<p class="filter-status" data-filter-status aria-live="polite"></p>
+<script>
+  const controls = document.querySelector<HTMLElement>('[data-listing-controls]');
+  const cards = [...document.querySelectorAll<HTMLElement>('.post-card')];
+  const status = document.querySelector<HTMLElement>('[data-filter-status]');
+  const input = controls?.querySelector<HTMLInputElement>('[data-filter-query]');
+  const selects = [...(controls?.querySelectorAll<HTMLSelectElement>('select') ?? [])];
+  let selectedTag = new URLSearchParams(location.search).get('tag')?.toLowerCase() ?? '';
+  const apply = () => {
+    const query = input?.value.trim().toLowerCase() ?? '';
+    let visible = 0;
+    cards.forEach(card => {
+      const matchesText = !query || card.dataset.search?.includes(query);
+      const matchesSelects = selects.every(select => !select.value || card.dataset[select.dataset.filterCategory !== undefined ? 'category' : select.dataset.filterPlatform !== undefined ? 'platform' : 'difficulty'] === select.value);
+      const matchesTag = !selectedTag || card.querySelector(`[data-tag="${CSS.escape(selectedTag)}"]`);
+      const show = Boolean(matchesText && matchesSelects && matchesTag);
+      card.hidden = !show;
+      if (show) visible++;
+    });
+    if (status) status.textContent = `${visible} ${visible === 1 ? 'entry' : 'entries'} shown${selectedTag ? ` for tag “${selectedTag}”` : ''}.`;
+  };
+  controls?.addEventListener('input', apply);
+  document.querySelectorAll<HTMLButtonElement>('[data-tag]').forEach(tag => tag.addEventListener('click', () => {
+    selectedTag = selectedTag === tag.dataset.tag ? '' : tag.dataset.tag ?? '';
+    document.querySelectorAll('[data-tag]').forEach(item => item.classList.toggle('active', selectedTag !== '' && (item as HTMLElement).dataset.tag === selectedTag));
+    apply();
+  }));
+  document.querySelectorAll<HTMLElement>('[data-tag]').forEach(item => item.classList.toggle('active', selectedTag !== '' && item.dataset.tag === selectedTag));
+  apply();
+</script>
