@@ -1,8 +1,8 @@
 export const siteConfig = {
   siteName: "Nabil's Personal Website",
   siteDescription: 'A personal field guide to computer science and cybersecurity.',
-  author: 'Your Name',
-  github: 'https://github.com/username',
+  author: 'Nabil',
+  github: 'https://github.com/zF-tm/zF-tm.github.io',
   navigation: [
     { label: 'Home', href: '/' },
     { label: 'Notes', href: '/notes/' },
