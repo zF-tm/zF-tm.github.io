@@ -26,8 +26,7 @@ const current = Astro.url.pathname;
     <header class="site-header">
       <nav class="shell nav" aria-label="Primary navigation">
         <a class="identity" href={withBase('/')} aria-label={`${siteConfig.siteName} home`}>
-          <span class="identity-mark" aria-hidden="true">S/</span>
-          <span>{siteConfig.siteName}</span>
+          {siteConfig.siteName}
         </a>
         <div class="nav-links">
           {siteConfig.navigation.map((item) => {
