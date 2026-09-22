@@ -1,0 +1,7 @@
+{
+  "category": "wifi",
+  "name": "WEP Encryption Algorithm",
+  "slug": "wep-encryption-algorithm",
+  "parent": "wep-attacks",
+  "order": 20
+}

@@ -1,0 +1,7 @@
+{
+  "category": "wifi",
+  "name": "Diving Into WEP Attacks",
+  "slug": "diving-into-wep-attacks",
+  "parent": "wep-attacks",
+  "order": 30
+}
