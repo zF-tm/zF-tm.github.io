@@ -9,6 +9,7 @@ tags:
 published: true
 slug: enigma
 category: Machine
+platform: Hack The Box
 ---
 # Enigma HTB Machine Writeup
 
