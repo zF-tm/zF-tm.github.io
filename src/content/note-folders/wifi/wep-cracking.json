@@ -1,0 +1,7 @@
+{
+  "category": "wifi",
+  "name": "WEP Cracking",
+  "slug": "wep-cracking",
+  "parent": "wep-attacks",
+  "order": 40
+}
