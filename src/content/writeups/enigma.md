@@ -157,7 +157,7 @@ Bro's password is bestfriends ☠️
 
 anyways
 
-so what i tried to login through ssh and it aint work because it requires keys to login 
+so what i tried to do is login through ssh and it aint work because it requires keys to login 
 
 so instead on my shell, i just done su haris and entered the password, so i lowkey created SSH key so i can use them on my local machine and login as him
 
