@@ -1,0 +1,7 @@
+{
+  "category": "ai-security",
+  "name": "Prompt Injection",
+  "slug": "prompt-injection",
+  "parent": "prompt-injection-attacks",
+  "order": 20
+}
