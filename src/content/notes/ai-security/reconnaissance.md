@@ -148,15 +148,15 @@ Ranked prediction of model identity
 ### Install
 
 ```shellsession
-evlion48@htb[/htb]$ git clone https://github.com/pasquini-dario/LLMmap
-evlion48@htb[/htb]$ cd LLMmap/
-evlion48@htb[/htb]$ pip3 install -r requirements.txt
+iccys@htb[/htb]$ git clone https://github.com/pasquini-dario/LLMmap
+iccys@htb[/htb]$ cd LLMmap/
+iccys@htb[/htb]$ pip3 install -r requirements.txt
 ```
 
 ### Run in Interactive Mode
 
 ```shellsession
-evlion48@htb[/htb]$ python main_interactive.py --inference_model_path ./data/pretrained_models/default
+iccys@htb[/htb]$ python main_interactive.py --inference_model_path ./data/pretrained_models/default
 
 [Instruction] Submit the given query to the LLM app and copy/paste the output produced and then ENTER. Let's start:
 [Press any key to continue]: 
