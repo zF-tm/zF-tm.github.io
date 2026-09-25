@@ -49,7 +49,7 @@ Reports success/failure rate per attack
 ## Installing garak
 
 ```shellsession
-evlion48@htb[/htb]$ pip install garak
+iccys@htb[/htb]$ pip install garak
 ```
 
 This installs the `garak` command-line tool.
@@ -70,7 +70,7 @@ To run a scan, you need three things:
 ### Listing Available Probes
 
 ```shellsession
-evlion48@htb[/htb]$ garak --list_probes
+iccys@htb[/htb]$ garak --list_probes
 
 garak LLM vulnerability scanner v0.9.0.16 ( https://github.com/leondz/garak ) at 2024-10-18T09:48:00.329325
 [...]
@@ -97,7 +97,7 @@ garak supports an extensive list of probes (attack payloads), including DAN-fami
 **Target:** `meta/meta-llama-3.1-405b-instruct`, hosted on Replicate.
 
 ```shellsession
-evlion48@htb[/htb]$ REPLICATE_API_TOKEN="r8_REDACTED" garak --model_type replicate --model_name "meta/meta-llama-3.1-405b-instruct" -p dan.Dan_11_0
+iccys@htb[/htb]$ REPLICATE_API_TOKEN="r8_REDACTED" garak --model_type replicate --model_name "meta/meta-llama-3.1-405b-instruct" -p dan.Dan_11_0
 
 garak LLM vulnerability scanner v0.9.0.16 ( https://github.com/leondz/garak ) at 2024-10-18T11:29:33.867834
 📜 logging to /home/t/.local/share/garak/garak.log
@@ -161,7 +161,7 @@ The HTML report gives a visual pass-rate overview per probe/detector (e.g. `dan.
 **Target:** `meta/meta-llama-3-8b-instruct`, using the `promptinject` probe family.
 
 ```shellsession
-evlion48@htb[/htb]$ REPLICATE_API_TOKEN="r8_REDACTED" garak --model_type replicate --model_name "meta/meta-llama-3-8b-instruct" -p promptinject
+iccys@htb[/htb]$ REPLICATE_API_TOKEN="r8_REDACTED" garak --model_type replicate --model_name "meta/meta-llama-3-8b-instruct" -p promptinject
 
 garak LLM vulnerability scanner v0.9.0.16 ( https://github.com/leondz/garak ) at 2024-10-18T12:14:14.549336
 📜 logging to /home/t/.local/share/garak/garak.log

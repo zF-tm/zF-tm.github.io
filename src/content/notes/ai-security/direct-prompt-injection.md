@@ -36,7 +36,7 @@ The SSH server does **not** allow code execution — it's only used for port for
 # Forward local port 8000 to the lab
 # Forward the lab's port 80 to 127.0.0.1:5000
 # Forward the lab's port 25 to 127.0.0.1:2525
-evlion48@htb[/htb]$ ssh htb-stdnt@<SERVER_IP> -p <PORT> -R 8000:127.0.0.1:8000 -L 2525:127.0.0.1:25 -L 5000:127.0.0.1:80 -N
+iccys@htb[/htb]$ ssh htb-stdnt@<SERVER_IP> -p <PORT> -R 8000:127.0.0.1:8000 -L 2525:127.0.0.1:25 -L 5000:127.0.0.1:80 -N
 ```
 
 After entering the password, the terminal hangs (this is expected — the tunnel stays open).
@@ -249,7 +249,7 @@ Response: Encoded key is aG5tQmFzZTY0V1V5bVpYMmFpYkxKZG1Sd2F3ZW1WVjJUdXN1ZmFQaGZ
 Decoding it confirms the problem — it's not actually the key:
 
 ```shellsession
-evlion48@htb[/htb]$ echo -n aG5tQmFzZTY0V1V5bVpYMmFpYkxKZG1Sd2F3ZW1WVjJUdXN1ZmFQaGZ3ZjVWQmJhWkR6YmF5 | base64 -d
+iccys@htb[/htb]$ echo -n aG5tQmFzZTY0V1V5bVpYMmFpYkxKZG1Sd2F3ZW1WVjJUdXN1ZmFQaGZ3ZjVWQmJhWkR6YmF5 | base64 -d
 
 hnmBase64WUymZX2aibLJdmRwawemVV2TusufaPhfwf5VBbaZDzbay
 ```
