@@ -1,0 +1,7 @@
+{
+  "category": "ai-security",
+  "name": "Jailbreaking",
+  "slug": "jailbreaking",
+  "parent": "prompt-injection-attacks",
+  "order": 30
+}
