@@ -19,8 +19,6 @@ difficulty: Medium
 > **Category:** Linux  
 > **Techniques:** RDP access, wireless traffic capture, credential sniffing, Craft CMS exploitation, database enumeration, Craft/Yii decryption, SSH access, and CUPS privilege escalation
 
-> [!NOTE]
-> This walkthrough is intended for the authorized Hack The Box environment only. Replace interface names, IP addresses, BSSIDs, and callback addresses with values appropriate to your own lab session.
 
 ## Attack Path
 
