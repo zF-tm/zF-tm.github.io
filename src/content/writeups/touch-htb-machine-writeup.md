@@ -46,6 +46,8 @@ Web Enumeration
       ↓
 API Information Disclosure
       ↓
+Default Password Discovery
+      ↓
 Kiosk Credentials
       ↓
 RDP Access
@@ -110,19 +112,56 @@ returns application status information.
 
 ![API status response](/images/writeups/touch-htb-machine-writeup/screenshot-from-2026-10-06-13-06-49.png)
 
-The response contains a **serial number**.
+One particularly interesting value returned by the endpoint is the device's **serial number**.
 
-This looks potentially useful, especially since we're currently looking for a way to authenticate to the portal.
+At first, we don't know exactly what the serial number is useful for, so let's continue investigating the login page.
 
 ---
 
-# 3. Logging Into the Portal
+# 3. Discovering the Default Password
 
-Trying the exposed serial number as the password works.
+While inspecting the **page source** of the login page, we find an interesting hint embedded in the HTML:
 
-We successfully authenticate to the portal.
+```html
+class="login-hint"
+title="The default password is the device serial number included in your DeviceHub packaging."
+```
 
-Inside, we find two particularly useful things:
+This reveals something very important:
+
+> **The default password for the DeviceHub portal is the device's serial number.**
+
+We already obtained exactly that information from:
+
+```text
+/api/status
+```
+
+So we can combine the two discoveries:
+
+```text
+Page Source
+    │
+    └── Default password = Device Serial Number
+                              │
+                              ▼
+                         /api/status
+                              │
+                              └── Device Serial Number
+                                      │
+                                      ▼
+                                   Password
+```
+
+This means the serial number exposed through `/api/status` can be used as the password for the portal.
+
+Using it successfully authenticates us.
+
+---
+
+# 4. DeviceHub Portal Access
+
+Once we're inside the portal, we find two particularly useful things:
 
 1. Credentials for the kiosk machine.
 2. Options for turning certain kiosk/scanner functionality on and off.
@@ -138,7 +177,7 @@ Since RDP was exposed during our initial enumeration, we can try these credentia
 
 ---
 
-# 4. RDP Access
+# 5. RDP Access
 
 Using the newly discovered credentials, we connect over RDP:
 
@@ -170,7 +209,7 @@ So our next objective is clear:
 
 ---
 
-# 5. Triggering the Scanner Error
+# 6. Triggering the Scanner Error
 
 The kiosk application contains functionality that uses the passenger information given to us in the machine description:
 
@@ -195,7 +234,7 @@ Now we need to turn that access into something more useful.
 
 ---
 
-# 6. Escaping the Kiosk Through the Print Dialog
+# 7. Escaping the Kiosk Through the Print Dialog
 
 With Microsoft Edge open, I pressed:
 
@@ -231,7 +270,7 @@ We have successfully escaped the kiosk.
 
 ---
 
-# 7. Getting the User Flag
+# 8. Getting the User Flag
 
 Now that we have Command Prompt access, we can navigate to the current user's Desktop.
 
@@ -256,7 +295,7 @@ This gives us the **user flag**.
 
 ---
 
-# 8. Privilege Escalation Enumeration
+# 9. Privilege Escalation Enumeration
 
 Now we need to move from `KioskUser` to an administrative context.
 
@@ -310,7 +349,7 @@ Authentication succeeds.
 
 ---
 
-# 9. Enumerating MySQL Privileges
+# 10. Enumerating MySQL Privileges
 
 Before trying to exploit anything, let's determine exactly what our database account can do.
 
@@ -363,7 +402,7 @@ NT AUTHORITY\SYSTEM
 
 ---
 
-# 10. Preparing the MySQL UDF
+# 11. Preparing the MySQL UDF
 
 For this technique, we use:
 
@@ -399,7 +438,7 @@ C:\MySQL\lib\plugin\lib_mysqludf_sys.dll
 
 ---
 
-# 11. Creating the UDF
+# 12. Creating the UDF
 
 Now we return to MySQL.
 
@@ -457,7 +496,7 @@ We now effectively have SYSTEM-level command execution.
 
 ---
 
-# 12. Disabling MySQL Hex Output
+# 13. Disabling MySQL Hex Output
 
 Instead of manually decoding hexadecimal results every time, we can reconnect to MySQL with:
 
@@ -477,7 +516,7 @@ are much easier to read.
 
 ---
 
-# 13. Reading the Root Flag
+# 14. Reading the Root Flag
 
 Since `sys_eval()` executes commands as:
 
@@ -528,6 +567,10 @@ Nmap Enumeration
     ▼
 Web Application :8443
     │
+    ├──► Inspect Page Source
+    │         │
+    │         └──► Default Password = Device Serial Number
+    │
     ▼
 API Enumeration
     │
@@ -535,10 +578,13 @@ API Enumeration
 /api/status
     │
     ▼
-Serial Number Disclosure
+Device Serial Number Disclosure
     │
     ▼
-Portal Authentication
+Use Serial as Default Password
+    │
+    ▼
+DeviceHub Portal Access
     │
     ▼
 Kiosk Credentials
@@ -590,7 +636,7 @@ MySQL Enumeration
     │
     ├── Highly Privileged root Account
     │
-    └── Writable/Usable Plugin Directory
+    └── Plugin Directory
     │
     ▼
 lib_mysqludf_sys.dll
@@ -615,9 +661,37 @@ ROOT FLAG 🚩
 
 # Key Takeaways
 
-## API Endpoints Can Expose More Than the Main Application
+## Source Code Can Reveal Authentication Logic
 
-The visible login page didn't immediately give us a path forward.
+The login page itself didn't tell us how to authenticate.
+
+However, inspecting its source revealed:
+
+```html
+title="The default password is the device serial number included in your DeviceHub packaging."
+```
+
+This gave us the application's default-password scheme.
+
+The password itself wasn't directly exposed there, but `/api/status` leaked the device serial number.
+
+Combining those two pieces of information gave us valid authentication:
+
+```text
+Page Source
+      +
+/api/status
+      ↓
+Valid Password
+```
+
+This is a good example of how two relatively small information disclosures can become much more serious when chained together.
+
+---
+
+## API Endpoints Can Expose Sensitive Information
+
+The visible application didn't initially give us a path forward.
 
 Fuzzing revealed:
 
@@ -625,19 +699,11 @@ Fuzzing revealed:
 /api/status
 ```
 
-which leaked a serial number that could be reused for authentication.
+which exposed the device's serial number.
 
-This is a good reminder not to limit web enumeration to visible pages.
+On its own, this might appear to be harmless device information.
 
----
-
-## Small Information Leaks Can Become Authentication Bypasses
-
-The serial number initially looked like ordinary device information.
-
-In practice, it doubled as a password.
-
-Information returned by diagnostic and status endpoints should therefore be treated as potentially sensitive.
+However, because the application's source told us that the serial number was also the default password, the endpoint effectively exposed authentication material.
 
 ---
 
@@ -740,9 +806,11 @@ KS7X2M
 From there, the path became:
 
 ```text
-API Information Disclosure
+Page Source Authentication Hint
+        +
+API Serial Number Disclosure
         ↓
-Portal Access
+DeviceHub Portal Access
         ↓
 RDP Credentials
         ↓
@@ -757,7 +825,7 @@ MySQL UDF
 NT AUTHORITY\SYSTEM
 ```
 
-The most interesting part of the machine was the transition between attack surfaces. The web application provided access to the kiosk, the kiosk escape exposed the underlying Windows system, local enumeration exposed MySQL credentials, and MySQL finally provided SYSTEM-level command execution.
+The most interesting part of the machine was the transition between attack surfaces. The page source revealed how the default password was generated, the API exposed the value required to construct that password, the web portal provided access to the kiosk, the kiosk escape exposed the underlying Windows system, local enumeration exposed MySQL credentials, and MySQL finally provided SYSTEM-level command execution.
 
 **Initial access:** `KioskUser`  
 **Database access:** `root@localhost`  
