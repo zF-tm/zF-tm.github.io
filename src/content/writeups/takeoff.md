@@ -15,7 +15,7 @@ difficulty: Hard
 ---
 # Takeoff HTB Machine Writeup
 
-**Difficulty:** Hard | **Points:** 40 | **OS:** Linux
+**Difficulty:** Hard
 
 Starting with an IP, we need to do active recon and scan for open ports using nmap:
 
