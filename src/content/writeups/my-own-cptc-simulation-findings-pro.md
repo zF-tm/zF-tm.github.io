@@ -302,7 +302,7 @@ Initial attempts to crack the signing key (unsuccessful) and to downgrade to `al
 
 ### 4.1 Credential reuse
 
-The admin credentials from 7001 (`admin` / `TidalRidge!84`) also work here.
+The admin credentials from 7001 (`admin` / `TidalRidge!84`) also work here
 
 ![Logged into 7003 with reused creds](/images/writeups/my-own-cptc-simulation-findings/screenshot-from-2026-11-03-18-50-49.png)
 
