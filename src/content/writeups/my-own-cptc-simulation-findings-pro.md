@@ -378,12 +378,6 @@ Enumerating SUID binaries on the compromised host shows `cp` with the SUID bit s
 
 A SUID `cp` runs with the file owner's (root's) privileges and **does not drop them**, so it can read or write any file as root — the standard [GTFOBins `cp`](https://gtfobins.github.io/gtfobins/cp/) technique. Typical escalation paths:
 
-- **Read** a root-only file, e.g. copy `/etc/shadow` or `/root/.ssh/id_rsa` to a readable location.
-- **Write** a privileged file, e.g. append a root-equivalent entry to `/etc/passwd`:
-  ```bash
-  # craft an entry with a known password hash, then overwrite as root
-  echo 'DATA' | cp /dev/stdin /path/to/target   # write-as-root primitive
-  ```
 
 This yields root.
 
