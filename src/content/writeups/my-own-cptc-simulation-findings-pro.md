@@ -306,7 +306,7 @@ The admin credentials from 7001 (`admin` / `TidalRidge!84`) also work here.
 
 ![Logged into 7003 with reused creds](/images/writeups/my-own-cptc-simulation-findings/screenshot-from-2026-11-03-18-50-49.png)
 
-To answer the note in the original ("not sure if this is password reuse") — **yes**, this is credential reuse: the same secret authenticates to two independent services.
+
 
 > ### F-07 — Credential Reuse Across Services · *Medium*
 > **Target:** 7001 → 7003
