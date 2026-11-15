@@ -12,6 +12,10 @@ category: Crypto
 platform: TVX
 difficulty: Easy
 ---
+# Creeper Vault Writeup
+
+## Challenge Files
+
 The challenge gives us 2 files, those are the contents of those files:
 
 ```
@@ -19,6 +23,7 @@ c = 1574928985319013777436289945491687612751672976588545303342361399014858100334
 
 The ciphertext belongs to Vault A.
 ```
+
 ```
 === Creeper Vault A ===
 n = 1942668892225729070919461906823520455305416829490420089422957436437580309796491507761
@@ -31,14 +36,17 @@ e = 65537
 Both vaults were assembled by the same careless Creeper.
 ```
 
+## Analysis
 
-if we look at the n_a and n_b, they look alike, and also looking at the hint "Both vaults were assembled by the same careless Creeper." we can comprehend that both n values are using a shared prime. 
+If we look at the `n_a` and `n_b`, they look alike, and also looking at the hint **"Both vaults were assembled by the same careless Creeper."** we can comprehend that both `n` values are using a **shared prime**.
 
-we can find that prime by finding the greatest common divisor between them two 
+We can find that prime by finding the **greatest common divisor** between them two.
+
+## Solution
 
 ```python
 from math import gcd
-from Crypto.whatever.whatever import long_to_bytes
+from Crypto.Util.number import long_to_bytes
 
 n_a = 1942668892225729070919461906823520455305416829490420089422957436437580309796491507761
 
@@ -61,8 +69,15 @@ m = pow(c,d,n_a)
 
 print(long_to_bytes(m))
 ```
-and we get :
 
-`TVXCTF{the_creeper_reused_a_prime}`
+## Flag
 
-very simple very easy 
+And we get:
+
+```
+TVXCTF{the_creeper_reused_a_prime}
+```
+
+---
+
+*Very simple, very easy.*
