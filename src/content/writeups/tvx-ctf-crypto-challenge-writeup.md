@@ -13,7 +13,7 @@ platform: TVX
 difficulty: Easy
 ---
 # Creeper Vault Writeup
-.
+
 ## Challenge Files
 
 The challenge gives us 2 files, those are the contents of those files:
